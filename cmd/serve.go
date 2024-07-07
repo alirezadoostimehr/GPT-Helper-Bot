@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/config"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/gpt"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
 	"github.com/spf13/cobra"
 )
 
@@ -24,9 +24,9 @@ func serve(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
-	gptbot := gpt.NewGPT(config.GlobalConfig.OpenAI.APIKey)
+	openaiClient := openai.NewGPT(config.GlobalConfig.OpenAI.APIKey)
 
-	tgbot, err := bot.NewBot(config.GlobalConfig.BOT.TOKEN, gptbot)
+	tgbot, err := bot.NewBot(config.GlobalConfig.BOT.TOKEN, openaiClient)
 	if err != nil {
 		panic(err)
 	}

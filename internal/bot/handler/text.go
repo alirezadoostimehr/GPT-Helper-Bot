@@ -1,17 +1,17 @@
 package handler
 
 import (
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/gpt"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
 	tb "gopkg.in/telebot.v3"
 )
 
 type Text struct {
-	Gptbot gpt.GPT
+	openaiClient openai.Client
 }
 
-func NewText(gptbot *gpt.GPT) *Text {
+func NewText(client *openai.Client) *Text {
 	return &Text{
-		Gptbot: *gptbot,
+		openaiClient: *client,
 	}
 }
 
@@ -20,7 +20,7 @@ func (t *Text) Command() string {
 }
 
 func (t *Text) Handle(ctx tb.Context) error {
-	res, err := t.Gptbot.Complete(ctx.Text())
+	res, err := t.openaiClient.Complete(ctx.Text())
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,7 @@ package bot
 
 import (
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/handler"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/gpt"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
 	tb "gopkg.in/telebot.v3"
 )
 
@@ -10,7 +10,7 @@ type Bot struct {
 	*tb.Bot
 }
 
-func NewBot(token string, gptbot *gpt.GPT) (*Bot, error) {
+func NewBot(token string, openaiClient *openai.Client) (*Bot, error) {
 	settings := tb.Settings{
 		Token: token,
 	}
@@ -23,7 +23,7 @@ func NewBot(token string, gptbot *gpt.GPT) (*Bot, error) {
 	bot.registerCommands(
 		[]handler.Command{
 			handler.NewStart(),
-			handler.NewText(gptbot),
+			handler.NewText(openaiClient),
 		})
 	return bot, nil
 }
