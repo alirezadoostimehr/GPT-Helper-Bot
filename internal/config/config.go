@@ -10,8 +10,13 @@ type BOTConfig struct {
 	TOKEN string `mapstructure:"token"`
 }
 
+type OpenaiConfig struct {
+	APIKey string `mapstructure:"apikey"`
+}
+
 type Config struct {
-	BOT BOTConfig `mapstructure:"bot"`
+	BOT    BOTConfig    `mapstructure:"bot"`
+	OpenAI OpenaiConfig `mapstructure:"openai"`
 }
 
 var GlobalConfig *Config
@@ -24,6 +29,12 @@ func Load() error {
 
 	err := errors.Wrap(
 		viper.BindEnv("bot.token", "BOT.TOKEN"), "failed to bind BOT.TOKEN env")
+	if err != nil {
+		return err
+	}
+
+	err = errors.Wrap(
+		viper.BindEnv("openai.apikey", "OPENAI_APIKEY"), "failed to bind OPENAI.APIKEY env")
 	if err != nil {
 		return err
 	}
