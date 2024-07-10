@@ -1,0 +1,18 @@
+services:
+  mongo:
+    image: mongo:7.0.11
+    container_name: gpt_helper_mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_DATABASE=gpt_helper
+    ports:
+      - 127.0.0.1:27017:27017
+    volumes:
+      - type: volume
+        source: gpt_helper_mongodb_data
+        target: /bitnami/mongodb
+    mem_limit: 500M
+    memswap_limit: 500M
+
+volumes:
+  gpt_helper_mongodb_data:

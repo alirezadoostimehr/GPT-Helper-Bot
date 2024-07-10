@@ -2,13 +2,18 @@ package handler
 
 import (
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
 	tb "gopkg.in/telebot.v3"
 )
 
-type NewChat struct{}
+type NewChat struct {
+	mongoClient *database.MongoClient
+}
 
-func NewNewChat() *NewChat {
-	return &NewChat{}
+func NewNewChat(mongoClient *database.MongoClient) *NewChat {
+	return &NewChat{
+		mongoClient: mongoClient,
+	}
 }
 
 func (n *NewChat) Command() string {
