@@ -24,6 +24,7 @@ func NewBot(token string, openaiClient *openai.Client) (*Bot, error) {
 		[]handler.Command{
 			handler.NewStart(),
 			handler.NewText(openaiClient),
+			handler.NewNewChat(),
 		})
 	return bot, nil
 }
