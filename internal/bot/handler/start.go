@@ -19,3 +19,7 @@ func (s *Start) Command() string {
 func (s *Start) Handle(ctx tb.Context) error {
 	return ctx.Send(fmt.Sprintf("Hey there! Is it working? Is my voice clear?"))
 }
+
+func (s *Start) Middleware() []tb.MiddlewareFunc {
+	return nil
+}

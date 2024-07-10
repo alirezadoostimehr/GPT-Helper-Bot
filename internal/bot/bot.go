@@ -30,6 +30,6 @@ func NewBot(token string, openaiClient *openai.Client) (*Bot, error) {
 
 func (b *Bot) registerCommands(commands []handler.Command) {
 	for _, h := range commands {
-		b.Handle(h.Command(), h.Handle)
+		b.Handle(h.Command(), h.Handle, h.Middleware()...)
 	}
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
 	tb "gopkg.in/telebot.v3"
 )
@@ -24,5 +25,9 @@ func (t *Text) Handle(ctx tb.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.Send(res)
+	return ctx.Reply(res)
+}
+
+func (t *Text) Middleware() []tb.MiddlewareFunc {
+	return []tb.MiddlewareFunc{middleware.RejectPrivateChat()}
 }
