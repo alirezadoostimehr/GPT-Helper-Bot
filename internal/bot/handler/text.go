@@ -48,3 +48,7 @@ func (t *Text) Handle(ctx tb.Context) error {
 func (t *Text) Middleware() []tb.MiddlewareFunc {
 	return []tb.MiddlewareFunc{middleware.RejectNonSupergroup(), middleware.RejectNonTopics()}
 }
+
+func (t *Text) Description() string {
+	return ""
+}

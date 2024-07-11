@@ -21,12 +21,29 @@ func NewBot(token string, openaiClient *openai.Client, mongoClient *database.Mon
 	}
 
 	bot := &Bot{Bot: tgBot}
-	bot.registerCommands(
-		[]handler.Command{
-			handler.NewStart(),
-			handler.NewText(openaiClient, mongoClient),
-			handler.NewNewChat(mongoClient),
-		})
+
+	commands := []handler.Command{
+		handler.NewStart(),
+		handler.NewText(openaiClient, mongoClient),
+		handler.NewNewChat(mongoClient),
+	}
+
+	registeringCommands := make([]tb.Command, 0)
+	for _, c := range commands {
+		if c.Description() != "" {
+			registeringCommands = append(registeringCommands, tb.Command{
+				Text:        c.Command(),
+				Description: c.Description(),
+			})
+		}
+	}
+
+	err = bot.SetCommands(registeringCommands)
+	if err != nil {
+		return nil, err
+	}
+
+	bot.registerCommands(commands)
 	return bot, nil
 }
 

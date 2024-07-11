@@ -23,3 +23,7 @@ func (s *Start) Handle(ctx tb.Context) error {
 func (s *Start) Middleware() []tb.MiddlewareFunc {
 	return nil
 }
+
+func (s *Start) Description() string {
+	return ""
+}

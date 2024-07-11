@@ -43,3 +43,7 @@ func (n *NewChat) Handle(ctx tb.Context) error {
 func (n *NewChat) Middleware() []tb.MiddlewareFunc {
 	return []tb.MiddlewareFunc{middleware.RejectNonSupergroup(), middleware.RejectNonGeneral()}
 }
+
+func (n *NewChat) Description() string {
+	return "Create a new topic for chat"
+}
