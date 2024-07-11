@@ -15,17 +15,24 @@ func NewGPT(apiKey string) *Client {
 	}
 }
 
-func (g *Client) Complete(prompt string) (string, error) {
+func (g *Client) Complete(messages []string) (string, error) {
+	openaiMessages := make([]openailib.ChatCompletionMessage, len(messages))
+	for i, message := range messages {
+		role := openailib.ChatMessageRoleUser
+		if i%2 == 1 {
+			role = openailib.ChatMessageRoleAssistant
+		}
+		openaiMessages[i] = openailib.ChatCompletionMessage{
+			Role:    role,
+			Content: message,
+		}
+	}
+
 	resp, err := g.CreateChatCompletion(
 		context.Background(),
 		openailib.ChatCompletionRequest{
-			Model: openailib.GPT4Turbo,
-			Messages: []openailib.ChatCompletionMessage{
-				{
-					Role:    openailib.ChatMessageRoleUser,
-					Content: prompt,
-				},
-			},
+			Model:    openailib.GPT3Dot5Turbo0125,
+			Messages: openaiMessages,
 		},
 	)
 	if err != nil {
