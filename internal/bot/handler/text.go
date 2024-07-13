@@ -46,7 +46,11 @@ func (t *Text) Handle(ctx tb.Context) error {
 }
 
 func (t *Text) Middleware() []tb.MiddlewareFunc {
-	return []tb.MiddlewareFunc{middleware.RejectNonSupergroup(), middleware.RejectNonTopics()}
+	return []tb.MiddlewareFunc{
+		middleware.RejectNonSupergroup(),
+		middleware.RejectNonTopics(),
+		middleware.SetNameForUnnamedTopic(t.openaiClient),
+	}
 }
 
 func (t *Text) Description() string {

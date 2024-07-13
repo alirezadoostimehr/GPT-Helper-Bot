@@ -41,3 +41,28 @@ func (g *Client) Complete(messages []string) (string, error) {
 
 	return resp.Choices[0].Message.Content, nil
 }
+
+func (g *Client) GenerateName(prompt string) (string, error) {
+	resp, err := g.CreateChatCompletion(
+		context.Background(),
+		openailib.ChatCompletionRequest{
+			MaxTokens: 5,
+			Model:     openailib.GPT3Dot5Turbo,
+			Messages: []openailib.ChatCompletionMessage{
+				{
+					Role:    openailib.ChatMessageRoleSystem,
+					Content: "Generate a name with at most 3 words about the prompt",
+				},
+				{
+					Role:    openailib.ChatMessageRoleUser,
+					Content: prompt,
+				},
+			},
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Choices[0].Message.Content, nil
+}

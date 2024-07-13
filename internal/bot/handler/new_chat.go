@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/chat"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/models"
 	tb "gopkg.in/telebot.v3"
@@ -24,9 +25,9 @@ func (n *NewChat) Command() string {
 
 func (n *NewChat) Handle(ctx tb.Context) error {
 	topic, err := ctx.Bot().CreateTopic(ctx.Chat(), &tb.Topic{
-		Name:            "New GPT chat",
-		IconColor:       1,
-		IconCustomEmoji: "😮‍💨",
+		Name:            chat.DefaultTopicName,
+		IconColor:       chat.DefaultTopicIconColor,
+		IconCustomEmoji: chat.DefaultTopicIconCustomEmoji,
 	})
 
 	if err != nil {
