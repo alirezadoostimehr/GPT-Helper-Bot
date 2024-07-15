@@ -26,7 +26,14 @@ func NewMongoClient() (*MongoClient, error) {
 }
 
 func newClient() (*mongo.Client, error) {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(config.GlobalConfig.Mongo.URI))
+	client, err := mongo.Connect(
+		context.Background(),
+		options.Client().ApplyURI(config.GlobalConfig.Mongo.URI),
+		options.Client().SetAuth(options.Credential{
+			Username: config.GlobalConfig.Mongo.USERNAME,
+			Password: config.GlobalConfig.Mongo.PASSWORD,
+		}),
+	)
 	if err != nil {
 		return nil, err
 	}

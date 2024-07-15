@@ -16,8 +16,10 @@ type OpenaiConfig struct {
 }
 
 type MongoConfig struct {
-	URI  string `mapstructure:"uri"`
-	NAME string `mapstructure:"database_name"`
+	URI      string `mapstructure:"uri"`
+	NAME     string `mapstructure:"database_name"`
+	USERNAME string `mapstructure:"username"`
+	PASSWORD string `mapstructure:"password"`
 }
 
 type Config struct {
@@ -54,6 +56,18 @@ func Load() error {
 
 	err = errors.Wrap(
 		viper.BindEnv("mongo.database_name", "MONGO_DATABASE_NAME"), "failed to bind MONGO_DATABASE_NAME env")
+	if err != nil {
+		return err
+	}
+
+	err = errors.Wrap(
+		viper.BindEnv("mongo.username", "MONGO_USERNAME"), "failed to bind MONGO_USERNAME env")
+	if err != nil {
+		return err
+	}
+
+	err = errors.Wrap(
+		viper.BindEnv("mongo.password", "MONGO_PASSWORD"), "failed to bind MONGO_PASSWORD env")
 	if err != nil {
 		return err
 	}
