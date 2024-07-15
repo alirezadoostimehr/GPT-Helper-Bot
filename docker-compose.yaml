@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     environment:
       - MONGO_INITDB_DATABASE=gpt_helper
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=mongo
     ports:
       - 127.0.0.1:27017:27017
     volumes:
