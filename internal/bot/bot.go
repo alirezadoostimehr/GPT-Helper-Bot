@@ -31,7 +31,7 @@ func NewBot(token string, openaiClient *openai.Client, mongoClient *database.Mon
 	})
 
 	buttons := make([]button.ButtonHandler, 0)
-	for _, model := range openai.GptModels {
+	for model := range openai.GptModels {
 		buttons = append(buttons, button.NewSetModel(mongoClient, model))
 	}
 

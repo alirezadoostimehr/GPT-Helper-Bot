@@ -5,12 +5,12 @@ import (
 	openailib "github.com/sashabaranov/go-openai"
 )
 
-var GptModels = []string{
-	"gpt-4o-mini",
-	openailib.GPT4o,
-	openailib.GPT3Dot5Turbo0125,
-	openailib.GPT4Turbo,
-	openailib.GPT4,
+var GptModels = map[string]string{
+	"gpt-3_5-turbo":     openailib.GPT3Dot5Turbo0125,
+	openailib.GPT4:      openailib.GPT4,
+	openailib.GPT4Turbo: openailib.GPT4Turbo,
+	"gpt-4o-mini":       "gpt-4o-mini",
+	openailib.GPT4o:     openailib.GPT4o,
 }
 
 type Client struct {
@@ -23,7 +23,8 @@ func NewGPT(apiKey string) *Client {
 	}
 }
 
-func (g *Client) Complete(messages []string) (string, error) {
+func (g *Client) Complete(messages []string, model string) (string, error) {
+
 	openaiMessages := make([]openailib.ChatCompletionMessage, len(messages))
 	for i, message := range messages {
 		role := openailib.ChatMessageRoleUser
@@ -39,7 +40,7 @@ func (g *Client) Complete(messages []string) (string, error) {
 	resp, err := g.CreateChatCompletion(
 		context.Background(),
 		openailib.ChatCompletionRequest{
-			Model:    openailib.GPT3Dot5Turbo0125,
+			Model:    GptModels[model],
 			Messages: openaiMessages,
 		},
 	)

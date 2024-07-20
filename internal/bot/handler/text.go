@@ -31,7 +31,7 @@ func (t *Text) Handle(ctx tb.Context) error {
 	}
 
 	conversation.Messages = append(conversation.Messages, ctx.Text())
-	res, err := t.openaiClient.Complete(conversation.Messages)
+	res, err := t.openaiClient.Complete(conversation.Messages, conversation.OpenAIModel)
 	if err != nil {
 		return err
 	}

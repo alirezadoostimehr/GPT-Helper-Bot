@@ -34,9 +34,15 @@ func (n *NewChat) Handle(ctx tb.Context) error {
 		return err
 	}
 
+	superChat, err := n.mongoClient.GetSuperChatByID(context.Background(), ctx.Chat().ID)
+	if err != nil {
+		return err
+	}
+
 	err = n.mongoClient.CreateConversation(context.Background(), &models.Conversation{
-		ChatID:   ctx.Chat().ID,
-		ThreadID: topic.ThreadID,
+		ChatID:      ctx.Chat().ID,
+		ThreadID:    topic.ThreadID,
+		OpenAIModel: superChat.OpenAIModel,
 	})
 	return err
 }

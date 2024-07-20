@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
 	tb "gopkg.in/telebot.v3"
@@ -29,8 +30,8 @@ func (h *SetOpenAIModel) Handle(ctx tb.Context) error {
 
 func (h *SetOpenAIModel) Middleware() []tb.MiddlewareFunc {
 	return []tb.MiddlewareFunc{
-		//middleware.RejectNonSupergroup(),
-		//middleware.RejectNonGeneral(),
+		middleware.RejectNonSupergroup(),
+		middleware.RejectNonGeneral(),
 	}
 }
 
@@ -40,9 +41,9 @@ func (h *SetOpenAIModel) Description() string {
 
 func CreateButtons() [][]tb.InlineButton {
 	var buttons [][]tb.InlineButton
-	for _, model := range openai.GptModels {
+	for model := range openai.GptModels {
 		buttons = append(buttons, []tb.InlineButton{
-			tb.InlineButton{
+			{
 				Unique: model,
 				Text:   model,
 			},
