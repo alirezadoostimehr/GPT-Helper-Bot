@@ -5,6 +5,14 @@ import (
 	openailib "github.com/sashabaranov/go-openai"
 )
 
+var GptModels = []string{
+	"gpt-4o-mini",
+	openailib.GPT4o,
+	openailib.GPT3Dot5Turbo0125,
+	openailib.GPT4Turbo,
+	openailib.GPT4,
+}
+
 type Client struct {
 	*openailib.Client
 }
