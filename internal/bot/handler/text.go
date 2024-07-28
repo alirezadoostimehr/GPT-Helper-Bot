@@ -42,7 +42,7 @@ func (t *Text) Handle(ctx tb.Context) error {
 		return err
 	}
 
-	return ctx.Reply(res)
+	return ctx.Reply(res, tb.ModeMarkdown)
 }
 
 func (t *Text) Middleware() []tb.MiddlewareFunc {
