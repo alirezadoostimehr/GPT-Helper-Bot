@@ -24,3 +24,8 @@ func (mc *MongoClient) UpdateConversation(ctx context.Context, conversation *mod
 	_, err := mc.Database.Collection(models.ConversationCollectionName).UpdateOne(ctx, map[string]any{"chat_id": conversation.ChatID, "thread_id": conversation.ThreadID}, map[string]interface{}{"$set": conversation})
 	return err
 }
+
+func (mc *MongoClient) DeleteConversation(ctx context.Context, chatID int64, threadID int) error {
+	_, err := mc.Database.Collection(models.ConversationCollectionName).DeleteOne(ctx, map[string]any{"chat_id": chatID, "thread_id": threadID})
+	return err
+}

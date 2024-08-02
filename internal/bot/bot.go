@@ -28,6 +28,7 @@ func NewBot(token string, openaiClient *openai.Client, mongoClient *database.Mon
 		handler.NewText(openaiClient, mongoClient),
 		handler.NewNewChat(mongoClient),
 		handler.NewSetOpenAIModel(mongoClient),
+		handler.NewCloseTopic(mongoClient),
 	})
 
 	buttons := make([]button.ButtonHandler, 0)
