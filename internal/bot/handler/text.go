@@ -5,6 +5,7 @@ import (
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database/postgres"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/models"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/utils"
 	log "github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v3"
 	"sort"
@@ -50,6 +51,7 @@ func (t *Text) Handle(ctx tb.Context) error {
 		log.Error(err)
 		return ctx.Reply(InternalErrorMessage)
 	}
+	openaiAnswer := utils.SplitText(res, MessageMaxLength)
 
 	err = t.messageRepo.CreateMessage(int64(ctx.Message().ID), ctx.Message().Text, topic.ID, "user")
 	if err != nil {
@@ -57,13 +59,20 @@ func (t *Text) Handle(ctx tb.Context) error {
 		return ctx.Reply(InternalErrorMessage)
 	}
 
-	sentMessage, err := ctx.Bot().Reply(ctx.Message(), res)
-	if err != nil {
-		log.Error(err)
-		return ctx.Reply(InternalErrorMessage)
+	for _, openaiMessage := range openaiAnswer {
+		sentMessage, err := ctx.Bot().Reply(ctx.Message(), openaiMessage)
+		if err != nil {
+			log.Error(err)
+			return ctx.Reply(InternalErrorMessage)
+		}
+		err = t.messageRepo.CreateMessage(int64(sentMessage.ID), openaiMessage, topic.ID, "assistant")
+		if err != nil {
+			log.Error(err)
+			return ctx.Reply(InternalErrorMessage)
+		}
 	}
-	err = t.messageRepo.CreateMessage(int64(sentMessage.ID), res, topic.ID, "assistant")
-	return err
+
+	return nil
 }
 
 func (t *Text) Middleware() []tb.MiddlewareFunc {

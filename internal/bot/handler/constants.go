@@ -17,6 +17,10 @@ const (
 	DefaultOpenAIModel = "gpt-3.5-turbo"
 )
 
+const (
+	MessageMaxLength = 4096
+)
+
 var (
 	ReactionSuccess = tb.Reaction{
 		Emoji: "👍",
