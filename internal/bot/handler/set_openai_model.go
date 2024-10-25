@@ -2,19 +2,15 @@ package handler
 
 import (
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
 	tb "gopkg.in/telebot.v3"
 )
 
 type SetOpenAIModel struct {
-	mongoClient *database.MongoClient
 }
 
-func NewSetOpenAIModel(mongoClient *database.MongoClient) *SetOpenAIModel {
-	return &SetOpenAIModel{
-		mongoClient: mongoClient,
-	}
+func NewSetOpenAIModel() *SetOpenAIModel {
+	return &SetOpenAIModel{}
 }
 
 func (h *SetOpenAIModel) Command() string {

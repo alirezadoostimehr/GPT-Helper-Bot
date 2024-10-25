@@ -3,13 +3,14 @@ package openai
 import (
 	"context"
 	openailib "github.com/sashabaranov/go-openai"
+	log "github.com/sirupsen/logrus"
 )
 
 var GptModels = map[string]string{
-	"gpt-3_5-turbo":     openailib.GPT3Dot5Turbo0125,
+	"gpt-3.5-turbo":     openailib.GPT3Dot5Turbo0125,
 	openailib.GPT4:      openailib.GPT4,
 	openailib.GPT4Turbo: openailib.GPT4Turbo,
-	"gpt-4o-mini":       "gpt-4o-mini",
+	openailib.GPT4oMini: openailib.GPT4oMini,
 	openailib.GPT4o:     openailib.GPT4o,
 }
 
@@ -23,17 +24,17 @@ func NewGPT(apiKey string) *Client {
 	}
 }
 
-func (g *Client) Complete(messages []string, model string) (string, error) {
+func (g *Client) Complete(messages []map[string]string, model string) (string, error) {
 
 	openaiMessages := make([]openailib.ChatCompletionMessage, len(messages))
 	for i, message := range messages {
 		role := openailib.ChatMessageRoleUser
-		if i%2 == 1 {
+		if message["role"] == "assistant" {
 			role = openailib.ChatMessageRoleAssistant
 		}
 		openaiMessages[i] = openailib.ChatCompletionMessage{
 			Role:    role,
-			Content: message,
+			Content: message["content"],
 		}
 	}
 
@@ -45,6 +46,7 @@ func (g *Client) Complete(messages []string, model string) (string, error) {
 		},
 	)
 	if err != nil {
+		log.Error(err)
 		return "", err
 	}
 
@@ -56,11 +58,11 @@ func (g *Client) GenerateName(prompt string) (string, error) {
 		context.Background(),
 		openailib.ChatCompletionRequest{
 			MaxTokens: 5,
-			Model:     openailib.GPT3Dot5Turbo,
+			Model:     openailib.GPT4oMini,
 			Messages: []openailib.ChatCompletionMessage{
 				{
 					Role:    openailib.ChatMessageRoleSystem,
-					Content: "Generate a name with at most 3 words about the prompt",
+					Content: "Generate a name with at most 6 words about the prompt",
 				},
 				{
 					Role:    openailib.ChatMessageRoleUser,

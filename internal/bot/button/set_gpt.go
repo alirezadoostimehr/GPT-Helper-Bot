@@ -1,21 +1,21 @@
 package button
 
 import (
-	"context"
 	"fmt"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database/postgres"
+	log "github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v3"
 )
 
 type SetModel struct {
-	mongoClient *database.MongoClient
-	modelName   string
+	groupRepo *postgres.GroupRepo
+	modelName string
 }
 
-func NewSetModel(mongoClient *database.MongoClient, model string) *SetModel {
+func NewSetModel(groupRepo *postgres.GroupRepo, model string) *SetModel {
 	return &SetModel{
-		mongoClient: mongoClient,
-		modelName:   model,
+		groupRepo: groupRepo,
+		modelName: model,
 	}
 }
 
@@ -28,14 +28,16 @@ func (s SetModel) Text() string {
 }
 
 func (s SetModel) Handle(ctx tb.Context) error {
-	superChat, err := s.mongoClient.GetSuperChatOrCreate(context.Background(), ctx.Chat().ID)
+	chatID := ctx.Chat().ID
+	group, err := s.groupRepo.GetGroupByTelegramID(chatID)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
-	superChat.OpenAIModel = s.modelName
-	err = s.mongoClient.UpdateSuperChat(context.Background(), superChat)
+	err = s.groupRepo.SetGroupOpenAIModel(group.TelegramID, s.modelName)
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 

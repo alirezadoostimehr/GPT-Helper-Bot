@@ -1,22 +1,26 @@
 package handler
 
 import (
-	"context"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database/postgres"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/models"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
+	log "github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v3"
+	"sort"
 )
 
 type Text struct {
 	openaiClient openai.Client
-	mongoClient  database.MongoClient
+	topicRepo    *postgres.TopicRepo
+	messageRepo  *postgres.MessageRepo
 }
 
-func NewText(client *openai.Client, mongoClient *database.MongoClient) *Text {
+func NewText(client *openai.Client, topicRepo *postgres.TopicRepo, messageRepo *postgres.MessageRepo) *Text {
 	return &Text{
 		openaiClient: *client,
-		mongoClient:  *mongoClient,
+		topicRepo:    topicRepo,
+		messageRepo:  messageRepo,
 	}
 }
 
@@ -25,24 +29,42 @@ func (t *Text) Command() string {
 }
 
 func (t *Text) Handle(ctx tb.Context) error {
-	conversation, err := t.mongoClient.GetConversationByIDs(context.Background(), ctx.Chat().ID, ctx.Message().ThreadID)
+	threadID := ctx.Message().ThreadID
+
+	topic, err := t.topicRepo.GetTopicByThreadID(threadID)
 	if err != nil {
-		return err
+		log.Error(err)
+		return ctx.Reply(InternalErrorMessage)
 	}
 
-	conversation.Messages = append(conversation.Messages, ctx.Text())
-	res, err := t.openaiClient.Complete(conversation.Messages, conversation.OpenAIModel)
+	messages, err := t.messageRepo.GetMessagesByTopicID(topic.ID)
 	if err != nil {
-		return err
+		log.Error(err)
+		return ctx.Reply(InternalErrorMessage)
 	}
 
-	conversation.Messages = append(conversation.Messages, res)
-	err = t.mongoClient.UpdateConversation(context.Background(), conversation)
+	conversationMessages := CreateConversationFromMessages(messages, []string{ctx.Text()})
+	log.Infof("Conversation messages: %v", conversationMessages)
+	log.Info(topic.OpenAIModel)
+	res, err := t.openaiClient.Complete(conversationMessages, topic.OpenAIModel)
 	if err != nil {
-		return err
+		log.Error(err)
+		return ctx.Reply(InternalErrorMessage)
 	}
 
-	return ctx.Reply(res, tb.ModeMarkdown)
+	err = t.messageRepo.CreateMessage(int64(ctx.Message().ID), ctx.Message().Text, topic.ID, "user")
+	if err != nil {
+		log.Error(err)
+		return ctx.Reply(InternalErrorMessage)
+	}
+
+	sentMessage, err := ctx.Bot().Reply(ctx.Message(), res)
+	if err != nil {
+		log.Error(err)
+		return ctx.Reply(InternalErrorMessage)
+	}
+	err = t.messageRepo.CreateMessage(int64(sentMessage.ID), res, topic.ID, "assistant")
+	return err
 }
 
 func (t *Text) Middleware() []tb.MiddlewareFunc {
@@ -55,4 +77,23 @@ func (t *Text) Middleware() []tb.MiddlewareFunc {
 
 func (t *Text) Description() string {
 	return ""
+}
+
+func CreateConversationFromMessages(messages []models.Message, additionalMessage []string) []map[string]string {
+	sort.SliceStable(messages, func(i, j int) bool {
+		return messages[i].CreatedAt.Time.Before(messages[j].CreatedAt.Time)
+	})
+
+	res := make([]map[string]string, 0)
+	for _, message := range messages {
+		if message.Sender == "user" {
+			res = append(res, map[string]string{"role": "user", "content": message.Text})
+		} else {
+			res = append(res, map[string]string{"role": "assistant", "content": message.Text})
+		}
+	}
+	for _, message := range additionalMessage {
+		res = append(res, map[string]string{"role": "user", "content": message})
+	}
+	return res
 }

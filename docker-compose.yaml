@@ -1,20 +1,18 @@
 services:
-  mongo:
-    image: mongo:7.0.11
-    container_name: gpt_helper_mongo
+  postgres:
+    image: postgres:16-bookworm
+    container_name: gpt_helper_postgres
     restart: unless-stopped
     environment:
-      - MONGO_INITDB_DATABASE=gpt_helper
-      - MONGO_INITDB_ROOT_USERNAME=mongo
-      - MONGO_INITDB_ROOT_PASSWORD=mongo
+      - POSTGRES_DB=gpt_helper
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - 127.0.0.1:27017:27017
+      - "5432:5432"
     volumes:
       - type: volume
-        source: gpt_helper_mongodb_data
-        target: /bitnami/mongodb
-    mem_limit: 500M
-    memswap_limit: 500M
+        source: gpt_helper_postgres_data
+        target: /var/lib/postgresql/data
 
 volumes:
-  gpt_helper_mongodb_data:
+    gpt_helper_postgres_data:
