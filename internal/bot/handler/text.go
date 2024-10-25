@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v3"
 	"sort"
+	"time"
 )
 
 type Text struct {
@@ -37,15 +38,13 @@ func (t *Text) Handle(ctx tb.Context) error {
 		return ctx.Reply(InternalErrorMessage)
 	}
 
-	messages, err := t.messageRepo.GetMessagesByTopicID(topic.ID)
+	messages, err := t.messageRepo.GetMessagesByTopicID(topic.ID, time.Now().Add(-24*time.Hour), 30)
 	if err != nil {
 		log.Error(err)
 		return ctx.Reply(InternalErrorMessage)
 	}
 
 	conversationMessages := CreateConversationFromMessages(messages, []string{ctx.Text()})
-	log.Infof("Conversation messages: %v", conversationMessages)
-	log.Info(topic.OpenAIModel)
 	res, err := t.openaiClient.Complete(conversationMessages, topic.OpenAIModel)
 	if err != nil {
 		log.Error(err)

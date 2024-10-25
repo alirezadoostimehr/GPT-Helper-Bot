@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/models"
+	"time"
 )
 
 type MessageRepo struct {
@@ -19,10 +20,14 @@ func (m *MessageRepo) CreateMessage(telegramID int64, text string, topicID int64
 	return err
 }
 
-func (m *MessageRepo) GetMessagesByTopicID(topicID int64) ([]models.Message, error) {
+func (m *MessageRepo) GetMessagesByTopicID(topicID int64, after time.Time, limit int) ([]models.Message, error) {
 	var messages []models.Message
-	query := `SELECT id, telegram_id, text, topic_id, sender, created_at FROM "message" WHERE topic_id = $1 ORDER BY created_at`
-	rows, err := m.conn.Query(context.Background(), query, topicID)
+	query := `SELECT id, telegram_id, text, topic_id, sender, created_at 
+				FROM "message"
+				WHERE topic_id = $1 and created_at > $2
+			  	ORDER BY created_at DESC
+			  	LIMIT $3`
+	rows, err := m.conn.Query(context.Background(), query, topicID, after, limit)
 	if err != nil {
 		return nil, err
 	}
