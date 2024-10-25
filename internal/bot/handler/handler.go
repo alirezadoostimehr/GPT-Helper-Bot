@@ -6,5 +6,4 @@ type Command interface {
 	Command() string
 	Handle(ctx tb.Context) error
 	Middleware() []tb.MiddlewareFunc
-	Description() string
 }

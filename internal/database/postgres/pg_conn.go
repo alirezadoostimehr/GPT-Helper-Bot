@@ -6,7 +6,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewConnectionPool(ctx context.Context, conf config.PostgresConfig) (*pgxpool.Pool, error) {
+type ConnectionPool struct {
+	*pgxpool.Pool
+}
+
+func NewConnectionPool(ctx context.Context, conf config.PostgresConfig) (*ConnectionPool, error) {
 
 	pgxConfig, _ := pgxpool.ParseConfig("")
 	pgxConfig.ConnConfig.Host = conf.Host
@@ -21,5 +25,5 @@ func NewConnectionPool(ctx context.Context, conf config.PostgresConfig) (*pgxpoo
 	}
 
 	err = pool.Ping(ctx)
-	return pool, err
+	return &ConnectionPool{pool}, err
 }

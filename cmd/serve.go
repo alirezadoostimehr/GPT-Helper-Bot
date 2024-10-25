@@ -1,11 +1,13 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/config"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database/postgres"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/openai"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +22,9 @@ func init() {
 }
 
 func serve(cmd *cobra.Command, args []string) {
+	log.SetReportCaller(true)
+	ctx := context.Background()
+
 	fmt.Println("serve called")
 	if err := config.Load(); err != nil {
 		panic(err)
@@ -27,17 +32,17 @@ func serve(cmd *cobra.Command, args []string) {
 
 	openaiClient := openai.NewGPT(config.GlobalConfig.OpenAI.APIKey)
 
-	mongoClient, err := database.NewMongoClient()
+	postgresConn, err := postgres.NewConnectionPool(ctx, config.GlobalConfig.Postgres)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
-	tgbot, err := bot.NewBot(config.GlobalConfig.BOT.TOKEN, openaiClient, mongoClient)
+	telegramBot, err := bot.NewBot(config.GlobalConfig.BOT.TOKEN, openaiClient, postgresConn)
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 
-	tgbot.Start()
+	telegramBot.Start()
 
 	return
 }

@@ -1,44 +1,49 @@
 package handler
 
 import (
-	"context"
 	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/bot/middleware"
-	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database"
+	"github.com/alirezadoostimehr/GPT-Helper-Bot/internal/database/postgres"
+	log "github.com/sirupsen/logrus"
 	tb "gopkg.in/telebot.v3"
 )
 
 type CloseTopic struct {
-	mongoClient *database.MongoClient
+	topicRepo *postgres.TopicRepo
 }
 
-func NewCloseTopic(mongoClient *database.MongoClient) *CloseTopic {
+func NewCloseTopic(topicRepo *postgres.TopicRepo) *CloseTopic {
 	return &CloseTopic{
-		mongoClient: mongoClient,
+		topicRepo: topicRepo,
 	}
 }
 
-func (n *CloseTopic) Command() string {
+func (c *CloseTopic) Command() string {
 	return "/close_topic"
 }
 
-func (n *CloseTopic) Handle(ctx tb.Context) error {
+func (c *CloseTopic) Handle(ctx tb.Context) error {
 	err := ctx.Bot().DeleteTopic(ctx.Chat(), &tb.Topic{ThreadID: ctx.Message().ThreadID})
 	if err != nil {
+		log.Error(err)
 		return err
 	}
 
-	err = n.mongoClient.DeleteConversation(context.Background(), ctx.Chat().ID, ctx.Message().ThreadID)
+	threadID := ctx.Message().ThreadID
+	err = c.topicRepo.DeleteTopicByThreadID(threadID)
+	if err != nil {
+		log.Error(err)
+	}
 
 	return err
 }
 
-func (n *CloseTopic) Middleware() []tb.MiddlewareFunc {
+func (c *CloseTopic) Middleware() []tb.MiddlewareFunc {
 	return []tb.MiddlewareFunc{
 		middleware.RejectNonSupergroup(),
 		middleware.RejectNonTopics(),
 	}
 }
 
-func (n *CloseTopic) Description() string {
+func (c *CloseTopic) Description() string {
 	return "Close the current topic"
 }
